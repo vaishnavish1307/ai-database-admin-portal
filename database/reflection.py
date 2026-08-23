@@ -1,0 +1,121 @@
+from sqlalchemy import MetaData
+
+
+# Global metadata object
+metadata = MetaData()
+
+
+def refresh_metadata(engine):
+    """
+    Reload metadata from the selected database.
+    """
+
+    metadata.clear()
+
+    metadata.reflect(bind=engine)
+
+
+def get_all_tables():
+    """
+    Return all business tables from the currently
+    connected database.
+    """
+
+    excluded_tables = {
+        "users",
+        "table_permissions",
+        "audit_logs"
+    }
+
+    tables = []
+
+    for table_name in metadata.tables.keys():
+
+        if table_name not in excluded_tables:
+
+            tables.append(table_name)
+
+    return sorted(tables)
+
+
+def get_table_object(table_name):
+    """
+    Return SQLAlchemy Table object.
+    """
+
+    return metadata.tables.get(
+        table_name,
+        None
+    )
+
+
+def get_columns(table_name):
+    """
+    Return column metadata.
+    """
+
+    table = get_table_object(
+        table_name
+    )
+
+    if table is None:
+        return []
+
+    columns = []
+
+    for column in table.columns:
+
+        columns.append(
+            {
+                "name": column.name,
+                "type": str(column.type),
+                "nullable": column.nullable,
+                "primary_key": column.primary_key
+            }
+        )
+
+    return columns
+
+
+def get_primary_key(table_name):
+    """
+    Return primary key column.
+    """
+
+    table = get_table_object(
+        table_name
+    )
+
+    if table is None:
+        return None
+
+    for column in table.columns:
+
+        if column.primary_key:
+
+            return column.name
+
+    return None
+
+
+def get_schema_text(table_name):
+    """
+    Return schema information for AI.
+    """
+
+    table = get_table_object(
+        table_name
+    )
+
+    if table is None:
+        return ""
+
+    schema_lines = []
+
+    for column in table.columns:
+
+        schema_lines.append(
+            f"{column.name} {column.type}"
+        )
+
+    return "\n".join(schema_lines)
