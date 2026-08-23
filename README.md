@@ -316,14 +316,5 @@ streamlit run app.py
 - AI Insights Dashboard
  
 ---
- 
-## 👨‍💻 Team
- 
-**Project:** DB Admin Portal  
-**Technology:** Python + Streamlit + SQLAlchemy + MySQL  
-**Team Size:** 8 Members  
-**Team Lead:** Mohammad Kashif Siddiqui
- 
----
 ⭐ If you found this project useful, don't forget to star the repository.
  
