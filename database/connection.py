@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 DB_HOST = 'localhost'
 DB_PORT = 330
 DB_USER = 'root'
-DB_PASSWORD = 'NewPassword123!'
+DB_PASSWORD = '***********'
 DB_NAME = 'db_admin_portal'
 
 
