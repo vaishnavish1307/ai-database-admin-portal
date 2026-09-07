@@ -1,7 +1,6 @@
 import streamlit as st
 
 from sqlalchemy import (
-    Integer,
     Float,
     Boolean,
     Date,
@@ -31,30 +30,12 @@ from database.reflection import (
 def render_insert_page():
 
     st.title(
-        "➕ Insert Records"
+        "Insert Records"
     )
 
-    # -----------------------------------------
-    # CHECK DATABASE CONNECTION
-    # -----------------------------------------
-
-    if not st.session_state.get(
-        "database_connected"
-    ):
-
-        st.warning(
-            "⚠️ No database is currently connected."
-        )
-
-        st.info(
-            "Go to 'Connect Database' and connect a database first."
-        )
-
-        return
-
-    # -----------------------------------------
-    # GET ACTIVE ENGINE
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Check active database connection
+    # --------------------------------------------------
 
     engine = st.session_state.get(
         "active_engine"
@@ -62,15 +43,15 @@ def render_insert_page():
 
     if engine is None:
 
-        st.error(
-            "❌ Active database connection not found."
+        st.warning(
+            "Please connect to a database first."
         )
 
         return
 
-    # -----------------------------------------
-    # ACTIVE DATABASE
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Display active database
+    # --------------------------------------------------
 
     db = st.session_state.get(
         "active_database",
@@ -82,41 +63,34 @@ def render_insert_page():
         f"{db.get('name', 'Database')}"
     )
 
-    st.caption(
-        f"Database: {db.get('database', 'Unknown')} | "
-        f"Type: {db.get('type', 'Unknown')} | "
-        f"Host: {db.get('host', 'Unknown')} | "
-        f"Port: {db.get('port', 'Unknown')}"
-    )
-
     st.divider()
 
-    # -----------------------------------------
-    # GET TABLES
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Get tables
+    # --------------------------------------------------
 
     tables = get_all_tables()
 
     if not tables:
 
         st.warning(
-            "⚠️ No tables found."
+            "No tables found"
         )
 
         return
 
-    # -----------------------------------------
-    # SELECT TABLE
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Select table
+    # --------------------------------------------------
 
     selected_table = st.selectbox(
         "Select Table",
         tables
     )
 
-    # -----------------------------------------
-    # PERMISSION CHECK
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Permission check
+    # --------------------------------------------------
 
     if not is_admin():
 
@@ -126,14 +100,14 @@ def render_insert_page():
         ):
 
             st.error(
-                "❌ No INSERT permission."
+                "No INSERT permission"
             )
 
             return
 
-    # -----------------------------------------
-    # GET TABLE
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Get table
+    # --------------------------------------------------
 
     table = get_table_object(
         selected_table
@@ -142,14 +116,14 @@ def render_insert_page():
     if table is None:
 
         st.error(
-            "❌ Table not found."
+            "Table not found"
         )
 
         return
 
-    # -----------------------------------------
-    # INSERT FORM
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Form
+    # --------------------------------------------------
 
     form_data = {}
 
@@ -159,89 +133,106 @@ def render_insert_page():
 
     for column in table.columns:
 
-        # Skip auto-generated primary key
+        # Don't ask user to enter
+        # auto-increment primary key
+
         if column.primary_key:
             continue
 
         column_type = column.type
 
+        # --------------------------------------------------
         # Boolean / TINYINT
+        # --------------------------------------------------
+
         if (
             column.name.lower() == "is_active"
             or isinstance(column_type, TINYINT)
             or isinstance(column_type, Boolean)
         ):
 
-            form_data[column.name] = st.checkbox(
-                column.name
+            form_data[column.name] = (
+                st.checkbox(
+                    column.name
+                )
             )
 
+        # --------------------------------------------------
         # Float
+        # --------------------------------------------------
+
         elif isinstance(
             column_type,
             Float
         ):
 
-            form_data[column.name] = st.number_input(
-                column.name,
-                step=0.01
+            form_data[column.name] = (
+                st.number_input(
+                    column.name,
+                    step=0.01
+                )
             )
 
-        # Integer
-        elif isinstance(
-            column_type,
-            Integer
-        ):
-
-            form_data[column.name] = st.number_input(
-                column.name,
-                step=1,
-                value=0
-            )
-
+        # --------------------------------------------------
         # Date
+        # --------------------------------------------------
+
         elif isinstance(
             column_type,
             Date
         ):
 
-            form_data[column.name] = st.date_input(
-                column.name
+            form_data[column.name] = (
+                st.date_input(
+                    column.name
+                )
             )
 
+        # --------------------------------------------------
         # DateTime
+        # --------------------------------------------------
+
         elif isinstance(
             column_type,
             DateTime
         ):
 
-            form_data[column.name] = st.date_input(
-                column.name
+            form_data[column.name] = (
+                st.date_input(
+                    column.name
+                )
             )
 
+        # --------------------------------------------------
         # Email
+        # --------------------------------------------------
+
         else:
 
             if "email" in column.name.lower():
 
-                form_data[column.name] = st.text_input(
-                    column.name,
-                    placeholder="user@example.com"
+                form_data[column.name] = (
+                    st.text_input(
+                        column.name,
+                        placeholder="user@example.com"
+                    )
                 )
 
             else:
 
-                form_data[column.name] = st.text_input(
-                    column.name
+                form_data[column.name] = (
+                    st.text_input(
+                        column.name
+                    )
                 )
 
-    # -----------------------------------------
-    # INSERT BUTTON
-    # -----------------------------------------
+    # --------------------------------------------------
+    # Insert
+    # --------------------------------------------------
 
     if st.button(
         "Insert Record",
-        width="stretch"
+        type="primary"
     ):
 
         success, message = insert_record(
@@ -253,11 +244,11 @@ def render_insert_page():
         if success:
 
             st.success(
-                f"✅ {message}"
+                message
             )
 
         else:
 
             st.error(
-                f"❌ {message}"
+                message
             )

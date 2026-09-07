@@ -28,6 +28,9 @@ def get_record_by_id(
     if table is None:
         return None
 
+    if engine is None:
+        return None
+
     pk = get_primary_key(
         table_name
     )
@@ -61,7 +64,7 @@ def get_record_by_id(
     except Exception as e:
 
         print(
-            f"Error fetching record: {e}"
+            f"Error loading record: {e}"
         )
 
         return None
@@ -83,6 +86,13 @@ def update_record(
         return (
             False,
             "Table not found"
+        )
+
+    if engine is None:
+
+        return (
+            False,
+            "No active database connection"
         )
 
     pk = get_primary_key(

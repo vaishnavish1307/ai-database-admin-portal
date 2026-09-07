@@ -29,13 +29,16 @@ def insert_record(
 
     try:
 
-        # Convert boolean values for MySQL
+        # Convert Boolean values to 0/1
+        # for databases such as MySQL
         for key, value in data.items():
 
             if isinstance(value, bool):
 
                 data[key] = (
-                    1 if value else 0
+                    1
+                    if value
+                    else 0
                 )
 
         with Session(engine) as session:
@@ -45,7 +48,9 @@ def insert_record(
                 .values(**data)
             )
 
-            session.execute(stmt)
+            session.execute(
+                stmt
+            )
 
             session.commit()
 

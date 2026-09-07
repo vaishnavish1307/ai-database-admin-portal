@@ -6,11 +6,23 @@ from sqlalchemy.orm import Session
 from database.reflection import get_table_object
 
 
-def get_table_data(table_name, engine):
+def get_table_data(
+    table_name,
+    engine
+):
+    """
+    Fetch all records from the selected table
+    using the currently active database engine.
+    """
 
-    table = get_table_object(table_name)
+    table = get_table_object(
+        table_name
+    )
 
     if table is None:
+        return pd.DataFrame()
+
+    if engine is None:
         return pd.DataFrame()
 
     try:
@@ -19,7 +31,9 @@ def get_table_data(table_name, engine):
 
             stmt = select(table)
 
-            result = session.execute(stmt)
+            result = session.execute(
+                stmt
+            )
 
             rows = result.fetchall()
 

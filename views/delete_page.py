@@ -41,7 +41,23 @@ def render_delete_page():
         return
 
     # --------------------------------------------------
-    # Get tables from active database
+    # Display active database
+    # --------------------------------------------------
+
+    db = st.session_state.get(
+        "active_database",
+        {}
+    )
+
+    st.success(
+        f"🟢 Connected Database: "
+        f"{db.get('name', 'Database')}"
+    )
+
+    st.divider()
+
+    # --------------------------------------------------
+    # Get tables
     # --------------------------------------------------
 
     tables = get_all_tables()
@@ -53,6 +69,10 @@ def render_delete_page():
         )
 
         return
+
+    # --------------------------------------------------
+    # Select table
+    # --------------------------------------------------
 
     selected_table = st.selectbox(
         "Select Table",
@@ -96,11 +116,19 @@ def render_delete_page():
         f"Delete from {selected_table}"
     )
 
+    # --------------------------------------------------
+    # Record ID
+    # --------------------------------------------------
+
     record_id = st.number_input(
         f"{pk}",
         min_value=1,
         step=1
     )
+
+    # --------------------------------------------------
+    # Warning
+    # --------------------------------------------------
 
     st.warning(
         "⚠️ This action cannot be undone."
@@ -111,7 +139,7 @@ def render_delete_page():
     )
 
     # --------------------------------------------------
-    # Delete Record
+    # Delete
     # --------------------------------------------------
 
     if st.button(
